@@ -13,7 +13,7 @@ from rasterio.enums import Resampling
 
 from constants import BACKGROUND, FISHING, NONFISHING, NONVESSEL
 from utils import chip_sar_img, pad
-
+import gc
 
 def get_grid_coords(padded_img, chips, grids):
     """
@@ -97,10 +97,11 @@ def process_scene(
     files["wind_quality"] = Path(files["vh"]).parent / "owiWindQuality.tif"
     files["mask"] = Path(files["vh"]).parent / "owiMask.tif"
 
-    imgs, chips, grids = {}, {}, {}
+    imgs, grids = {}, {}
 
     # For each channel, if it is already chipped, do not re-chip
     for fl in channels:
+        chips =  {}
         temp_folder = Path(chips_path) / scene_id / fl
         if os.path.exists(temp_folder) and (not overwrite_preproc):
             print(f"Using existing preprocessed {fl} data for scene {scene_id}")
@@ -137,7 +138,8 @@ def process_scene(
         for i in range(len(chips[fl])):
             chip = chips[fl][i]
             np.save(f"{temp_folder}/{i}_{fl}.npy", chip)
-
+        
+        src.close()
         if fl == channels[0]:
             # Getting grid coordinates
             grid_coords = get_grid_coords(padded_img, chips[fl], grids[fl])
@@ -193,6 +195,11 @@ def process_scene(
                         mode="a",
                         header=False,
                     )
+        chips= None
+        del chips
+        padded_img= None
+        del padded_img
+        gc.collect()
 
     # Print number of detections per scene; make sure it aligns with
     # number expected
