@@ -43,7 +43,7 @@ from train import create_datasets
 # be compatible with this notebook
 # Specify directory within which tiny data partition has been downloaded and each folder unzipped
 
-tiny_data_path = Path('/home/jovyan/tiny/')
+tiny_data_path = Path('/home/jovyan/xview3-tiny/')
 # Creating directories
 train_path = tiny_data_path / 'train'
 val_path = tiny_data_path / 'validation'
@@ -76,10 +76,10 @@ if 0:
 # we show here, make sure that scene '590dd08f71056cacv' is in the 'validation; directory;
 # We recommend using ~ 5 scenes for training and ~2 scenes for validation as an initial proof-of-concept.  
 # Note that the full xView3 training dataset contains several hundred scenes!
-image_folder = '/home/jovyan/tiny/'
+image_folder = tiny_data_path #'/home/jovyan/tiny/'
 
 # Path to ground truth label files; should contain train.csv and validation.csv
-label_file_root = '/home/jovyan/xview3'
+label_file_root = tiny_data_path #'/home/jovyan/xview3'
 
 # Path where chips will be written to disk; should be empty to begin with,
 # after running once, should contain two folders -- 'train' and 'validation' --
@@ -105,17 +105,20 @@ val_chips_path = Path(chips_path) / 'validation'
 
 # Create PyTorch datasets
 channels = ['vh', 'vv', 'bathymetry']
-train_data, val_data = create_datasets(
-        train_data_root=train_data_root,
-        train_detect_file=train_label_file,
-        train_chips_path=train_chips_path,
-        val_data_root=val_data_root,
-        val_detect_file=val_label_file,
-        val_chips_path=val_chips_path,
-        overwrite_preproc=overwrite_preproc,
-        channels=channels
-)
-
+if 0:
+    train_data, val_data = create_datasets(
+            train_data_root=train_data_root,
+            train_detect_file=train_label_file,
+            train_chips_path=train_chips_path,
+            val_data_root=val_data_root,
+            val_detect_file=val_label_file,
+            val_chips_path=val_chips_path,
+            overwrite_preproc=overwrite_preproc,
+            channels=channels
+    )
+else:
+    train_data= torch.load('train_data.pth')
+    val_data= torch.load('val_data.pth')
 
 # ## Data loaders
 # Now that our data is loaded and initialized, we want to start setting up the device and DataLoaders to feed the PyTorch model.
@@ -157,7 +160,7 @@ print(batch[1][0])
 
 
 # In[7]:
-
+# %%
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -177,10 +180,10 @@ for box in batch[1][0]['boxes']:
 
     # Add the patch to the Axes
     ax.add_patch(rect)
-
+plt.savefig('file_name.png')
 plt.show()
 
-
+# %%
 # ## Model
 # The xView3 reference model utilizes the well-known [Faster R-CNN](https://arxiv.org/abs/1506.01497) model that is provided pre-built in the torchvision library. We wrap the Faster R-CNN into a convenience class for ease of use, but the basic structure still remains and should be simple to extend.
 # 
