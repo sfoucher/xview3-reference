@@ -117,8 +117,8 @@ if 0:
             channels=channels
     )
 else:
-    train_data= torch.load('train_data.pth')
-    val_data= torch.load('val_data.pth')
+    train_data= torch.load(tiny_data_path / 'train_data.pth')
+    val_data= torch.load(tiny_data_path / 'val_data.pth')
 
 # ## Data loaders
 # Now that our data is loaded and initialized, we want to start setting up the device and DataLoaders to feed the PyTorch model.
