@@ -26,6 +26,7 @@ class CocoEvaluator(object):
 
         self.iou_types = iou_types
         self.coco_eval = {}
+        self.stats = {}
         for iou_type in iou_types:
             self.coco_eval[iou_type] = COCOeval(coco_gt, iouType=iou_type)
 
@@ -62,6 +63,7 @@ class CocoEvaluator(object):
         for iou_type, coco_eval in self.coco_eval.items():
             print("IoU metric: {}".format(iou_type))
             coco_eval.summarize()
+            self.stats[iou_type]= coco_eval.stats[0]
 
     def prepare(self, predictions, iou_type):
         if iou_type == "bbox":
