@@ -58,9 +58,13 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
 
         if lr_scheduler is not None:
             lr_scheduler.step()
-
+        #wandb.log(loss_dict_reduced)
+        #wandb.log({'train/total loss':loss_value})
+        
         metric_logger.update(loss=losses_reduced, **loss_dict_reduced)
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
+        
+        return metric_logger
 
 
 def _get_iou_types(model):
