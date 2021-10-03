@@ -12,7 +12,12 @@ from coco_utils import get_coco_api_from_dataset
 """
 Source: https://github.com/pytorch/vision/blob/master/references/detection/engine.py
 """
+try:
+    import wandb
 
+    assert hasattr(wandb, '__version__')  # verify package import not local dir
+except (ImportError, AssertionError):
+    wandb = None
 
 def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
     model.train()
@@ -58,9 +63,14 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
 
         if lr_scheduler is not None:
             lr_scheduler.step()
-
+        if wandb:
+            wandb.log(loss_dict_reduced)
+            wandb.log({'train/total loss':loss_value})
+        
         metric_logger.update(loss=losses_reduced, **loss_dict_reduced)
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
+        
+        return metric_logger
 
 
 def _get_iou_types(model):
