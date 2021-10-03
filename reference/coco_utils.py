@@ -9,7 +9,7 @@ from pycocotools import mask as coco_mask
 from pycocotools.coco import COCO
 
 import transforms as T
-
+from tqdm import tqdm
 """
 Source: https://github.com/pytorch/vision/blob/master/references/detection/coco_eval.py
 """
@@ -151,7 +151,8 @@ def convert_to_coco_api(ds):
     ann_id = 0
     dataset = {"images": [], "categories": [], "annotations": []}
     categories = set()
-    for img_idx in range(len(ds)):
+    
+    for img_idx in tqdm(range(len(ds))):
         # find better way to get target
         # targets = ds.get_annotations(img_idx)
         img, targets = ds[img_idx]
@@ -166,6 +167,8 @@ def convert_to_coco_api(ds):
         bboxes = bboxes.tolist()
         labels = targets["labels"].tolist()
         areas = targets["area"].tolist()
+        scene_id = targets["scene_id"]
+        chip_id = targets["chip_id"].item()
         iscrowd = targets["iscrowd"].tolist()
         if "masks" in targets:
             masks = targets["masks"]
@@ -178,6 +181,8 @@ def convert_to_coco_api(ds):
         for i in range(num_objs):
             ann = {}
             ann["image_id"] = image_id
+            ann["scene_id"] = scene_id
+            ann["chip_id"] = chip_id
             ann["bbox"] = bboxes[i]
             ann["category_id"] = labels[i]
             categories.add(labels[i])
